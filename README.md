@@ -45,16 +45,46 @@ Cada usuario tiene un criterio distinto para considerar que dos fuegos son del m
 - $d: int$, la distancia máxima (inclusive) la cual dos fuegos deben tener para ser considerados del mismo incendio. Por simplicidad, consideraremos que la distancia entre dos puntos (fuegos) en coordenadas geodésicas puede ser calculado utilizando la siguiente cuenta: $\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$, siendo ambos puntos $(x_1,y_1)$ y $(x_2, y_2)$.
 - $t: int$, el tiempo, en minutos, que deben tener dos incendios a distancia menor o igual a $d$ para ser consideradas del mismo incendio.
 
-Teniendo estos datos, se debe programar una función en Python ``segmentacionDeIncendios(fuegos: list[dict], d: int, t: int) -> tuple[int,dict]`` que, dado un conjunto de fuegos y los valores $d$ y $t$, indique la cantidad de incendios que ocurrieron, y además, se indique a que incendio pertenece cada fuego.
+Teniendo estos datos, se debe programar una función en Python ``segmentacionDeIncendios(fuegos: list[dict], d: float, t: float) -> tuple[int,list[list[string]]]`` que, dado un conjunto de fuegos y los valores $d$ y $t$, indique la cantidad de incendios que ocurrieron, y además, se indique a que incendio pertenece cada fuego.
 
 ### Input
 
-La cantidad de fuegos va a recibir esta función va a ser siempre menor o igual a $5000$. Cada fuego va a ser un diccionario con los siguientes datos: ``{id: string, x: float, y: float, time: string}``, donde además ``time`` es de la forma ``"YYYY-MM-DDTHH:MM"``. Además, está garantizado que $d$ y $t$ son mayores a $0$.
+La cantidad de fuegos va a recibir esta función va a ser siempre menor o igual a $5000$. Cada fuego va a ser un diccionario con los siguientes datos: ``{id: string, x: float, y: float, time: string}``, donde además ``time`` es de la forma ``"YYYY-MM-DDTHH:MM"``. Además, está garantizado que $d$ y $t$ son mayores a $0$, y los ``id`` son distintos.
 
 ### Output
 
-Una tupla. Su primer valor debe ser la cantidad de incendios distintos, y su segundo valor un diccionario que contenga como claves a los ``id`` de cada uno de los incendios, y como valor un número ``int`` que debe ser el mismo para cada uno de los fuegos que pertenezcan al mismo incendio.
+Una tupla. Su primer valor debe ser la cantidad de incendios distintos, y su segundo valor una lista que contenga en listas separadas cada uno de los incendios, guardando los ``id`` de cada uno de los fuegos dentro de una misma lista cuando pertenecen a un mismo incendio.
 
-La solución debe ser lo suficientemente eficiente para que el usuario no se quede esperando más de unos segundos la respuesta del request.
+### Ejemplo
+```python
+fuegos: list[dict] = [
+  {"id": "0", "x": 0.0, "y": 0.0, "time":"2023-01-01T00:00"}
+  {"id": "1", "x": 1.0, "y": 0.0, "time":"2023-01-01T00:00"}
+  {"id": "2", "x": 0.0, "y": 1.0, "time":"2023-01-01T00:00"}
+  {"id": "3", "x": 10.0, "y": 10.0, "time":"2023-01-01T00:00"}
+  {"id": "4", "x": 10.0, "y": 11.0, "time":"2023-01-01T00:00"}
+]
+
+d: float = 10.0
+t: float = 60.0
+
+num, lista = segmentacionDeIncendios(fuegos, d, t)
+
+# num -> 2
+# lista -> [["0","1","2"],["3","4"]]
+```
+
+
+### Aclaraciones
+
+La solución debe ser lo suficientemente eficiente para que el usuario no se quede esperando más de unos segundos la respuesta del request. Notar que se usó el termino "fuego" para denotar un punto, y el término "incendio" para denotar un conjunto de puntos que cumplen las características del enunciado.
 
 ## Parte C: Implementación de API con la función
+
+Ahora, necesitamos implementar una API para que los usuarios puedan acceder a la segmentación de incendios. Para eso, deberás implementar una función en AWS Lambda que reciba como query los valores $d$, $t$, y fechas entre las cuales se quiera calcular la cantidad de incendios. Luego, se deberá obtener estos incendios de la base de datos (simulada para los fines de este desafió) y obtener la segmentación de incendios, que deberá ser devuelta al usuario a través del request.
+
+(Se puede agregar complejidad a esta parte pidiendo que filtren los fuegos dentro de un polígono)
+
+## Parte D: Testing
+
+Para finalizar el desafío, se deberán implementar casos de prueba tanto para las funciones de Python construidas como para las funciones Lambda. Esto es sumamente importante ya que nos permitirá ver tu habilidad armando casos de prueba y desarrollando buenas prácticas. Para esta sección, recomendamos usar ``pytest``.
