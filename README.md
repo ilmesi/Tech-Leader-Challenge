@@ -34,7 +34,23 @@ Para esta parte del desafío, es importante notar que la API del *FIRESAT23* dev
 
 Además, al momento de cargar los incendios, se debe de clasificarlos según el continente que ocurrieron, y se deben descartar los eventos que no ocurrieron en la superficie terrestre.
 
-(Luego se completarán los detalles técnicos de como implementar la solución)
+### Detalles Técnicos
+
+La función a completar se encuentra en la carpeta ``Firesat23``. En ella, se mockea la base de datos DynamoDB para poder simular la subida de datos a nuestra base de datos. Se podrá utilizar la mayoría de las funciones de DynamoDB al igual que se haría con la API de AWS.
+
+Por favor, no modificar los archivos ``api/firesat23.py`` ni ``database/init.py``. Para entender el formato de como subir los datos a la base de datos, en ``database/init.py`` se encuentra un item de ejemplo. Recomendamos usar la operación ``BatchWrite`` de DynamoDB ya que hace la subida de datos más rápida. Más información de como usar la base de datos en https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html.
+
+Una vez subida la información, se recomienda leer toda la base de datos y retornear los registros de la función para poder analizar el output.
+
+### ¿Cómo correr la función?
+
+Recomendamos usar AWS SAM CLI, que permitirá simular el entorno de AWS Lambda en tu máquina local. También, se puede llamar directamente a la función, aunque no garantiza que vaya a funcionar correctamente en AWS Lambda. Para correr la función com SAM CLI, se debe usar el siguiente comando:
+
+```bash
+sam build Firesat23 && sam local invoke Firesat23 -e "events/firesatTime.json"
+```
+
+En el archivo ``"events/firesatTime.json"`` se puede introducir la hora a partir de la cual se agreguen los incendios a la base de datos.
 
 ## Parte B: Segmentación de Incendios
 
@@ -45,7 +61,7 @@ Cada usuario tiene un criterio distinto para considerar que dos fuegos son del m
 - $d: int$, la distancia máxima (inclusive) la cual dos fuegos deben tener para ser considerados del mismo incendio. Por simplicidad, consideraremos que la distancia entre dos puntos (fuegos) en coordenadas geodésicas puede ser calculado utilizando la siguiente cuenta: $\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$, siendo ambos puntos $(x_1,y_1)$ y $(x_2, y_2)$.
 - $t: int$, el tiempo, en minutos, que deben tener dos incendios a distancia menor o igual a $d$ para ser consideradas del mismo incendio.
 
-Teniendo estos datos, se debe programar una función en Python ``segmentacionDeIncendios(fuegos: list[dict], d: float, t: float) -> tuple[int,list[list[string]]]`` que, dado un conjunto de fuegos y los valores $d$ y $t$, indique la cantidad de incendios que ocurrieron, y además, se indique a que incendio pertenece cada fuego.
+Teniendo estos datos, se debe programar una función en Python ``segmentacionDeIncendios(fuegos: list[dict], d: float, t: float) -> tuple[int,list[list[str]]]`` que, dado un conjunto de fuegos y los valores $d$ y $t$, indique la cantidad de incendios que ocurrieron, y además, se indique a que incendio pertenece cada fuego.
 
 ### Input
 
@@ -58,10 +74,10 @@ Una tupla. Su primer valor debe ser la cantidad de incendios distintos, y su seg
 ### Ejemplo
 ```python
 fuegos: list[dict] = [
-  {"id": "0", "x": 0.0, "y": 0.0, "time":"2023-01-01T00:00"}
-  {"id": "1", "x": 1.0, "y": 0.0, "time":"2023-01-01T00:00"}
-  {"id": "2", "x": 0.0, "y": 1.0, "time":"2023-01-01T00:00"}
-  {"id": "3", "x": 10.0, "y": 10.0, "time":"2023-01-01T00:00"}
+  {"id": "0", "x": 0.0, "y": 0.0, "time":"2023-01-01T00:00"},
+  {"id": "1", "x": 1.0, "y": 0.0, "time":"2023-01-01T00:00"},
+  {"id": "2", "x": 0.0, "y": 1.0, "time":"2023-01-01T00:00"},
+  {"id": "3", "x": 10.0, "y": 10.0, "time":"2023-01-01T00:00"},
   {"id": "4", "x": 10.0, "y": 11.0, "time":"2023-01-01T00:00"}
 ]
 
@@ -78,6 +94,8 @@ num, lista = segmentacionDeIncendios(fuegos, d, t)
 ### Aclaraciones
 
 La solución debe ser lo suficientemente eficiente para que el usuario no se quede esperando más de unos segundos la respuesta del request. Notar que se usó el termino "fuego" para denotar un punto, y el término "incendio" para denotar un conjunto de puntos que cumplen las características del enunciado.
+
+Completar este función en la carpeta ``SegmentacionDeIncendios``. No hace falta implementar un entorno de AWS Lambda para esta parte del desafío, ¡ya que eso será la parte C!
 
 ## Parte C: Implementación de API con la función
 

@@ -40,9 +40,9 @@ def insert_example_item() -> None:
   table_name = 'WildfiresTable'
 
   example_item = {
-    "continent_date": "SA_2023-10-05T19",
-    "id": "2023-10-05T19:00:00+00:00+-10.02+16.71",
-    "conf": 15,
+    "continent_date": "SA_2023-10-05T19", # Es el continente en dos caracteres + fecha con formato ISO 8601 cortada hasta la hora
+    "id": "2023-10-05T19:00:00+00:00+-10.02+16.71", # Es el ISO 8601 + latitud + longitud con aproximación de dos dígitos
+    "conf": 15, # Es la confianza de la detección
     "sat": "noaa-goes16",
     "x": Decimal(-10.0165882110595703125),
     "y": Decimal(16.7101154327392578125)
