@@ -93,9 +93,11 @@ num, lista = segmentacionDeIncendios(fuegos, d, t)
 
 ### Aclaraciones
 
+**No utilizar librerías fuera de la librería estandar de Python.**
+
 La solución debe ser lo suficientemente eficiente para que el usuario no se quede esperando más de unos segundos la respuesta del request. Notar que se usó el termino "fuego" para denotar un punto, y el término "incendio" para denotar un conjunto de puntos que cumplen las características del enunciado.
 
-Completar este función en la carpeta ``SegmentacionDeIncendios``. No hace falta implementar un entorno de AWS Lambda para esta parte del desafío, ¡ya que eso será la parte C!
+Completar este función en la carpeta ``SegmentacionDeIncendios``. No hace falta implementar un entorno de AWS Lambda para esta parte del desafío, ¡ya que eso será la Parte C!
 
 ## Parte C: Implementación de API con la función
 
