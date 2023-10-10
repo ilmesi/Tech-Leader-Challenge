@@ -114,12 +114,17 @@ La API debe retornar un JSON que contenga los dos valores que devuelve la funci�
 }
 ```
 
-En ``events/fireSegmentationEvent.json`` se muestra un ejemplo del contenido del llamado a la función junto a los parámetros inyectados por AWS Lambda. Para probar la función, se pueden utilizar los siguientes comandos:
+En ``events/fireSegmentationEventRaw.json`` se muestra un ejemplo del contenido del llamado a la función junto a los parámetros inyectados por AWS Lambda (NO será necesario hacer un POST con todos esos parámetros). De todas formas, para probar la función, se pueden utilizar los siguientes comandos.
 
 ```bash
 sam build FireSegmentationApi && sam local start-api
 ```
 
+Luego, se puede llamar a la función en Postman con el contenido como se muestra en ``events/fireSegmentationEvent.json``.
+
+
 ## Parte D: Testing
 
-Para finalizar el desafío, se deberán implementar casos de prueba tanto para las funciones de Python construidas como para las funciones Lambda. Esto es sumamente importante ya que nos permitirá ver tu habilidad armando casos de prueba y desarrollando buenas prácticas. Para esta sección, recomendamos usar ``pytest``.
+Para finalizar el desafío, se deberán implementar casos de prueba tanto para las funciones de Python construidas como para las funciones Lambda. Esto es sumamente importante ya que nos permitirá ver tu habilidad armando casos de prueba y desarrollando buenas prácticas. Para esta sección, recomendamos usar ``pytest``. Completar los tests en la carpeta ``tests``, donde se encuentran ejemplos generados automáticamente al crear el proyecto. Para esta parte, a demás, para probar cosas con DynamoDB se puede mockear la base de datos directamente en los tests (para ello, sacar los comandos que mockean DynamoDB en cada una de las funciones Lambda). De esta forma, se podá corroborar lo que se guardó en la base de datos luego de la llamada a la función.
+
+**¡Exitos con el desafío!**

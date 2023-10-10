@@ -12,6 +12,5 @@ def lambda_handler (event: dict, context: dict) -> dict:
   insert_mock_data()
 
   jsonParams = json.loads(event["body"])
-  print(jsonParams)
   
   return { "statusCode": 200, "body": jsonParams}
