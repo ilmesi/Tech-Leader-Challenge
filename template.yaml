@@ -21,17 +21,32 @@ Resources:
       Architectures:
       - x86_64
       Tracing: Active
+  
+  FireSegmentationApi:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      CodeUri: FireSegmentationAPI/
+      Architectures:
+      - x86_64
+      Tracing: Active
+      Events:
+        PostSegmentation:
+          Type: Api
+          Properties:
+            Path: /segmentation
+            Method: post
 
-  ApplicationResourceGroup:
-    Type: AWS::ResourceGroups::Group
-    Properties:
-      Name:
-        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
-      ResourceQuery:
-        Type: CLOUDFORMATION_STACK_1_0
-  ApplicationInsightsMonitoring:
-    Type: AWS::ApplicationInsights::Application
-    Properties:
-      ResourceGroupName:
-        Ref: ApplicationResourceGroup
-      AutoConfigurationEnabled: 'true'
+  #ApplicationResourceGroup:
+  #  Type: AWS::ResourceGroups::Group
+  #  Properties:
+  #    Name:
+  #      Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+  #    ResourceQuery:
+  #      Type: CLOUDFORMATION_STACK_1_0
+  #ApplicationInsightsMonitoring:
+  #  Type: AWS::ApplicationInsights::Application
+  #  Properties:
+  #    ResourceGroupName:
+  #      Ref: ApplicationResourceGroup
+  #    AutoConfigurationEnabled: 'true'

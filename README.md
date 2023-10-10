@@ -22,7 +22,7 @@ Para este desafío, se deberá usar Python 3. Es crucial que se use Python de fo
 
 ## El Entorno
 
-Para poder resolver el desafío, utilizaremos AWS SAM (Amazon Web Services Serverless Application Model). Este es útil para poder crear, testear y deployar funciones Lambda en la nube de AWS. Esta tecnología es utilizada por nosotros para poder realizar un producto escalable y eficiente, ya que nuestra aplicación tiene una carga de procesamiento de datos elevada. Para más información, está disponible la documentación de AWS SAM en https://docs.aws.amazon.com/serverless-application-model/ y de AWS Lambda en https://docs.aws.amazon.com/lambda/. Además, en el documento [InitializationDetails.md](InitializationDetails.md), se encuentra una breve explicación de como poder usar SAM para testear la aplicación y deployarla (esto último no es necesario para el challenge). Se recomienda testear las funciones con el entorno de Docker recomendado por AWS, pero también se puede realizar de forma estándar invocando las funciones en Python.
+Para poder resolver el desafío, utilizaremos AWS SAM (Amazon Web Services Serverless Application Model). Este es útil para poder crear, testear y deployar funciones Lambda en la nube de AWS. Esta tecnología es utilizada por nosotros para poder realizar un producto escalable y eficiente, ya que nuestra aplicación tiene una carga de procesamiento de datos elevada. Para más información, está disponible la documentación de AWS SAM en https://docs.aws.amazon.com/serverless-application-model/ y de AWS Lambda en https://docs.aws.amazon.com/lambda/. Se recomienda testear las funciones con el entorno de Docker recomendado por AWS, pero también se puede realizar de forma estándar invocando las funciones en Python.
 
 # Consignas
 
@@ -38,9 +38,9 @@ Además, al momento de cargar los incendios, se debe de clasificarlos según el 
 
 La función a completar se encuentra en la carpeta ``Firesat23``. En ella, se mockea la base de datos DynamoDB para poder simular la subida de datos a nuestra base de datos. Se podrá utilizar la mayoría de las funciones de DynamoDB al igual que se haría con la API de AWS.
 
-Por favor, no modificar los archivos ``api/firesat23.py`` ni ``database/init.py``. Para entender el formato de como subir los datos a la base de datos, en ``database/init.py`` se encuentra un item de ejemplo. Recomendamos usar la operación ``BatchWrite`` de DynamoDB ya que hace la subida de datos más rápida. Más información de como usar la base de datos en https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html.
+Por favor, no modificar los archivos ``api/firesat23.py`` ni ``database/init.py``. Para entender el formato de como subir los datos a la base de datos, en ``database/init.py`` se encuentra un item de ejemplo. Recomendamos usar la operación ``BatchWrite`` de DynamoDB ya que hace la subida de datos más rápida. Más información de como usar la base de datos en https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html y en https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/index.html (Este segundo link proporciona una interfaz agradable para operar con la base de datos. Recomendamos usarla envés de las APIs directas).
 
-Una vez subida la información, se recomienda leer toda la base de datos y retornear los registros de la función para poder analizar el output.
+Una vez subida la información, se recomienda leer toda la base de datos y retornear los registros de la función para poder analizar el output (aunque quizás conviene remover esto para la parte D del desafío).
 
 ### ¿Cómo correr la función?
 
@@ -93,17 +93,32 @@ num, lista = segmentacionDeIncendios(fuegos, d, t)
 
 ### Aclaraciones
 
-**No utilizar librerías fuera de la librería estandar de Python.**
+**No utilizar librerías fuera de la librería estandar de Python. (Es decir, las instaladas con PIP)**
 
 La solución debe ser lo suficientemente eficiente para que el usuario no se quede esperando más de unos segundos la respuesta del request. Notar que se usó el termino "fuego" para denotar un punto, y el término "incendio" para denotar un conjunto de puntos que cumplen las características del enunciado.
 
-Completar este función en la carpeta ``SegmentacionDeIncendios``. No hace falta implementar un entorno de AWS Lambda para esta parte del desafío, ¡ya que eso será la Parte C!
+Completar este función en la carpeta ``FireSegmentation``. No hace falta implementar un entorno de AWS Lambda para esta parte del desafío, ¡ya que eso será la Parte C!
 
 ## Parte C: Implementación de API con la función
 
-Ahora, necesitamos implementar una API para que los usuarios puedan acceder a la segmentación de incendios. Para eso, deberás implementar una función en AWS Lambda que reciba como query los valores $d$, $t$, y fechas entre las cuales se quiera calcular la cantidad de incendios. Luego, se deberá obtener estos incendios de la base de datos (simulada para los fines de este desafió) y obtener la segmentación de incendios, que deberá ser devuelta al usuario a través del request.
+Ahora, necesitamos implementar una API para que los usuarios puedan acceder a la segmentación de incendios. Para eso, deberás implementar una función en AWS Lambda que reciba como query los valores $d$, $t$, y fechas entre las cuales se quiera calcular la cantidad de incendios. Luego, se deberá obtener estos incendios de la base de datos (simulada para los fines de este desafío) y obtener la segmentación de incendios, que deberá ser devuelta al usuario a través del request.
 
-(Se puede agregar complejidad a esta parte pidiendo que filtren los fuegos dentro de un polígono)
+Completar este función en la carpeta ``FireSegmentationAPI``, copiando en la carpeta ``segmentation`` la resolución de la parte B del desafío. La información de los atributos de la base de datos pueden verse en la carpeta ``database/init.py``, que define la base de datos **distinto** a la parte A. Para esta parte, es necesario entender como hacer queries de forma eficiente en DynamoDB, por lo que recomendamos leer la documentación y entender cómo funciona tanto DynamoDB como el sistema de Pricing, ya que se busca que las queries sean eficientes tanto en tiempo como en costo. Además, para fines del desafío, se poblará la base de datos solo con incendios desde el ``2023-01-01`` hasta el ``2023-06-30``, por lo que las queries fuera de ese rango no devolverían nada. La ejecución de la función Lambda puede ser lenta ya que se poblará la base de datos al correr la función para simularla con Mock.
+
+La API debe retornar un JSON que contenga los dos valores que devuelve la función de la parte B del desafío. Por ejemplo, para el mismo caso detallado en la Parte C, la función devería devolver a través de un request POST la siguiente información:
+
+```json
+{
+  "num": 2,
+  "lista": [["0","1","2"],["3","4"]]
+}
+```
+
+En ``events/fireSegmentationEvent.json`` se muestra un ejemplo del contenido del llamado a la función junto a los parámetros inyectados por AWS Lambda. Para probar la función, se pueden utilizar los siguientes comandos:
+
+```bash
+sam build FireSegmentationApi && sam local start-api
+```
 
 ## Parte D: Testing
 

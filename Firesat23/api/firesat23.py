@@ -26,8 +26,8 @@ def get_wildfires_last_24_hours() -> str:
     wildfire = {
       "date": date,
       "conf": random.randint(1, 100),
-      "x": round(x, 5),
-      "y": round(y, 5)
+      "x": round(x, 6),
+      "y": round(y, 6)
     }
     wildfires.append(wildfire)
 

@@ -1,5 +1,4 @@
 import boto3
-from moto import mock_dynamodb
 from decimal import Decimal
 
 def init_db() -> None:
