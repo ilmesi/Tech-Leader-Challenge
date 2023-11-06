@@ -59,7 +59,9 @@ Actualmente, contamos con varios usuarios que utilizan nuestro sistema de alerta
 Cada usuario tiene un criterio distinto para considerar que dos fuegos son del mismo incendio. Por ende, luego de hablar con cada uno de ellos, el equipo técnico determinó que en cada solicitud se puedan indicar dos parámetros (elegidos por cada usuario al momento de pedir la información) que ayudarán a determinar esto:
 
 - $d: int$, la distancia máxima (inclusive) la cual dos fuegos deben tener para ser considerados del mismo incendio. Por simplicidad, consideraremos que la distancia entre dos puntos (fuegos) en coordenadas geodésicas puede ser calculado utilizando la siguiente cuenta: $\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$, siendo ambos puntos $(x_1,y_1)$ y $(x_2, y_2)$.
-- $t: int$, el tiempo, en minutos, que deben tener dos incendios a distancia menor o igual a $d$ para ser consideradas del mismo incendio.
+- $t: int$, el tiempo máximo (inclusive), en minutos, que deben tener dos incendios a distancia menor o igual a $d$ para ser consideradas del mismo incendio.
+
+Notar que la relación entre fuegos es transitiva. Es decir, que si $A$ y $B$ pertenecen al mismo incendio, y también $B$ y $C$ pertenecen a un mismo incendio, entonces $A$ y $C$ pertenecen al mismo incendio, a pesar de que pueden $A$ y $C$ no estar a un tiempo o distancia menor o igual a $t$ o $d$ respectivamente.
 
 Teniendo estos datos, se debe programar una función en Python ``segmentacionDeIncendios(fuegos: list[dict], d: float, t: float) -> tuple[int,list[list[str]]]`` que, dado un conjunto de fuegos y los valores $d$ y $t$, indique la cantidad de incendios que ocurrieron, y además, se indique a que incendio pertenece cada fuego.
 
