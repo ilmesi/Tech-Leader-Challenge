@@ -3,7 +3,7 @@ La idea de este desafío es trabajar con una parte de las tecnologías utilizada
 
 1. Clonar este repositorio y guardarlo de forma **privada**.
 2. Realizar los desafíos propuestos a continuación.
-3. Compartirnos tu repositorio para poder acceder a las respuestas.
+3. Compartí tu repositorio a **@ulilopezpacho** para poder acceder a las respuestas.
 4. ¡Contactanos por correo electrónico para poder revisar el desafío!
 
 Además, estamos abiertos a feedback sobre el desafío. ¡Esperemos que les guste!
