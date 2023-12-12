@@ -1,16 +1,15 @@
-import json
 from shapely.geometry import Point, shape
 
-continents = {}
+from .continents import CONTINENTS
 
-with open("continents.json", "r") as file:
-    continentsJson = json.load(file)
+continents = CONTINENTS.copy()
 
 for continent in continents:
     continents[continent] = shape(continents[continent])
 
 
 def get_continent (x: float, y: float) -> str:
+
     point = Point(x, y)
 
     for name, continent in continents.items():
