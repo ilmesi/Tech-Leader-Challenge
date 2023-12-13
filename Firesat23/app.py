@@ -10,11 +10,6 @@ from database.models import Fire
 from api.firesat23 import get_wildfires_last_24_hours
 
 
-dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-table_name = 'WildfiresTable'
-wildfires_table = dynamodb.Table(table_name)
-
-
 def process_csv (csv_data: str, uploadFrom: date):
   firstLine: bool = True
 
@@ -42,7 +37,7 @@ def process_csv (csv_data: str, uploadFrom: date):
   return items
 
 
-def save_data(items: Sequence[Fire]):
+def save_data(items: Sequence[Fire], wildfires_table: any):
   try:
     with wildfires_table.batch_writer() as writer:
       for item in items:
@@ -51,22 +46,29 @@ def save_data(items: Sequence[Fire]):
     raise
 
 
-def fetch_data():
+def fetch_data(wildfires_table: any):
   response = wildfires_table.scan()
   return response['Items']
 
 
 @mock_dynamodb
 def lambda_handler (event: dict, context: dict) -> dict:
+  dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+  table_name = 'WildfiresTable'
+  wildfires_table = dynamodb.Table(table_name)
 
   init_db()
+  # Fetch data from the API
   firesat_csv: str = get_wildfires_last_24_hours()
   uploadFrom: date = datetime.strptime(event["uploadFrom"], "%Y-%m-%dT%H:%M:%S+00:00")
 
+  # Parse the data from last step & filter by date
   items = process_csv(firesat_csv, uploadFrom)
 
-  save_data(items)
+  # Save final list of filtered items
+  save_data(items, wildfires_table)
 
-  whole_database = fetch_data()
+  # Fetch the whole table data to return
+  whole_database = fetch_data(wildfires_table)
 
-  return { "statusCode": 200, "body": whole_database}
+  return { "statusCode": 200, "body": whole_database }
