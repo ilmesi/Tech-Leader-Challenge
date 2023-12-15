@@ -9,11 +9,11 @@ def init_db() -> None:
     KeySchema=[
       {
         'AttributeName': 'date',
-        'KeyType': 'HASH'
+        'KeyType': 'RANGE'
       },
       {
         'AttributeName': 'id',
-        'KeyType': 'RANGE'
+        'KeyType': 'HASH'
       }
     ],
     AttributeDefinitions=[
@@ -24,7 +24,29 @@ def init_db() -> None:
       {
         'AttributeName': 'id',
         'AttributeType': 'S'
+      },
+      {
+        'AttributeName': 'sat',
+        'AttributeType': 'S'
       }
+    ],
+    GlobalSecondaryIndexes=[
+        {
+            'IndexName': 'date-index',
+            'KeySchema': [
+                {
+                    'AttributeName': 'sat',
+                    'KeyType': 'HASH'
+                },
+                {
+                    'AttributeName': 'date',
+                    'KeyType': 'RANGE'
+                }
+            ],
+            'Projection': {
+                'ProjectionType': 'ALL'
+            }
+        }
     ],
     BillingMode='PAY_PER_REQUEST'
   )
