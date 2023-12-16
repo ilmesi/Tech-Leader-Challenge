@@ -4,10 +4,10 @@ from datetime import datetime, date
 import json
 from moto import mock_dynamodb
 
-from database.init import init_db
-from database.mockData import insert_mock_data
+from .database.init import init_db
+from .database.mockData import insert_mock_data
 
-from segmentation.segmentation import segmentacion_de_incendios
+from .segmentation.segmentation import segmentacion_de_incendios
 
 
 def filtrar_fuegos(wildfires_table: any, from_date: date, to_date: date) -> list[dict]:
@@ -49,8 +49,12 @@ def lambda_handler(event: dict, context: dict) -> dict:
   # Tomamos los parámetros de fechas y agregamos la posibilidad de enviar distance
   # y time (defaulteados en 10  y 100 respectivamente).
   from_date_string = body.get('fromDate', event.get('fromDate'))
-  fromDate: date = datetime.strptime(from_date_string, "%Y-%m-%dT%H:%M:%S")
   to_date_string = body.get('toDate', event.get('toDate'))
+
+  if None in [from_date_string, to_date_string]:
+    return { "statusCode": 400, "body": {"error": "Missing fields `fromDate` and `toDate`"} }
+
+  fromDate: date = datetime.strptime(from_date_string, "%Y-%m-%dT%H:%M:%S")
   toDate: date = datetime.strptime(to_date_string, "%Y-%m-%dT%H:%M:%S")
   distance: float = event.get("distance", 10.0)
   time: float = event.get("time", 100.0)

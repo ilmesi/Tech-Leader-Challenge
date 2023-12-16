@@ -1,5 +1,6 @@
 import boto3
 
+
 def init_db() -> None:
   dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
   table_name = 'WildfiresTable'

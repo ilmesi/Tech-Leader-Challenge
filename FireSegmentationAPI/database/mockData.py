@@ -3,6 +3,7 @@ import random
 from decimal import Decimal
 from datetime import datetime, timedelta
 
+
 def generate_random_datetime():
   start_date = datetime(2023, 1, 1)
   end_date = datetime(2023, 6, 30)

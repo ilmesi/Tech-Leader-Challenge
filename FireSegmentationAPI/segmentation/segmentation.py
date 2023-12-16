@@ -1,4 +1,5 @@
 from datetime import datetime
+import operator
 from math import pow, sqrt
 
 
@@ -38,7 +39,7 @@ def tiempo(fuego1: dict, fuego2: dict):
 
   t1 = datetime.strptime(fuego1["date"], "%Y-%m-%dT%H")
   t2 = datetime.strptime(fuego2["date"], "%Y-%m-%dT%H")
-  diff = t1 - t2
+  diff = abs(t1 - t2)
   return round(diff.total_seconds() / 3600, 2)
 
 
@@ -85,6 +86,9 @@ def segmentacion_de_incendios(fuegos: list[dict], d: float, t: float) -> tuple[i
     - Una lista con cada incendio (representado por una lista de identificadores de cada fuego)
   """
 
+  # TODO: Mejorar O(n^2) y además requiere previamente que esté ordenada la lista para lograr idempotencia en los tests
+  fuegos.sort(key=operator.itemgetter('id'))
+
   incendios: list[list] = []
   for fuego in fuegos:
     if len(incendios) == 0:
@@ -94,7 +98,7 @@ def segmentacion_de_incendios(fuegos: list[dict], d: float, t: float) -> tuple[i
 
       for incendio in incendios:
         for fuego_incendio in incendio:
-          if fuego_incendio["id"] == fuego["id"]:
+          if fuego_incendio == fuego:
             continue
           if son_cercanos(fuego, fuego_incendio, d, t):
             incendio.append(fuego)

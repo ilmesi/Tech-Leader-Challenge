@@ -1,145 +1,59 @@
-import json
+import boto3
+from moto import mock_dynamodb
 
-import pytest
-
-from hello_world import app
-
-def lambda_context():
-    class LambdaContext:
-        def __init__(self):
-            self.function_name = "test-func"
-            self.memory_limit_in_mb = 128
-            self.invoked_function_arn = "arn:aws:lambda:eu-west-1:809313241234:function:test-func"
-            self.aws_request_id = "52fdfc07-2182-154f-163f-5f0f9a621d72"
-
-        def get_remaining_time_in_millis(self) -> int:
-            return 1000
-
-    return LambdaContext()
+from FireSegmentationAPI import app
+from FireSegmentationAPI.segmentation.segmentation import segmentacion_de_incendios
 
 
-@pytest.fixture()
-def apigw_event():
-    """ Generates API GW Event"""
+def test_handler_sin_parametros_fail(invalid_gw_event, lambda_context):
+   response = app.lambda_handler(invalid_gw_event, context=lambda_context)
 
-    return {
-   "body":"",
-   "headers":{
-      "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-      "Accept-Encoding":"gzip, deflate, br",
-      "Accept-Language":"pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
-      "Cache-Control":"max-age=0",
-      "Connection":"keep-alive",
-      "Host":"127.0.0.1:3000",
-      "Sec-Ch-Ua":"\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\"",
-      "Sec-Ch-Ua-Mobile":"?0",
-      "Sec-Ch-Ua-Platform":"\"Linux\"",
-      "Sec-Fetch-Dest":"document",
-      "Sec-Fetch-Mode":"navigate",
-      "Sec-Fetch-Site":"none",
-      "Sec-Fetch-User":"?1",
-      "Upgrade-Insecure-Requests":"1",
-      "User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36",
-      "X-Forwarded-Port":"3000",
-      "X-Forwarded-Proto":"http"
-   },
-   "httpMethod":"GET",
-   "isBase64Encoded":False,
-   "multiValueHeaders":{
-      "Accept":[
-         "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
-      ],
-      "Accept-Encoding":[
-         "gzip, deflate, br"
-      ],
-      "Accept-Language":[
-         "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7"
-      ],
-      "Cache-Control":[
-         "max-age=0"
-      ],
-      "Connection":[
-         "keep-alive"
-      ],
-      "Host":[
-         "127.0.0.1:3000"
-      ],
-      "Sec-Ch-Ua":[
-         "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
-      ],
-      "Sec-Ch-Ua-Mobile":[
-         "?0"
-      ],
-      "Sec-Ch-Ua-Platform":[
-         "\"Linux\""
-      ],
-      "Sec-Fetch-Dest":[
-         "document"
-      ],
-      "Sec-Fetch-Mode":[
-         "navigate"
-      ],
-      "Sec-Fetch-Site":[
-         "none"
-      ],
-      "Sec-Fetch-User":[
-         "?1"
-      ],
-      "Upgrade-Insecure-Requests":[
-         "1"
-      ],
-      "User-Agent":[
-         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
-      ],
-      "X-Forwarded-Port":[
-         "3000"
-      ],
-      "X-Forwarded-Proto":[
-         "http"
-      ]
-   },
-   "multiValueQueryStringParameters":"",
-   "path":"/hello",
-   "pathParameters":"",
-   "queryStringParameters":"",
-   "requestContext":{
-      "accountId":"123456789012",
-      "apiId":"1234567890",
-      "domainName":"127.0.0.1:3000",
-      "extendedRequestId":"",
-      "httpMethod":"GET",
-      "identity":{
-         "accountId":"",
-         "apiKey":"",
-         "caller":"",
-         "cognitoAuthenticationProvider":"",
-         "cognitoAuthenticationType":"",
-         "cognitoIdentityPoolId":"",
-         "sourceIp":"127.0.0.1",
-         "user":"",
-         "userAgent":"Custom User Agent String",
-         "userArn":""
-      },
-      "path":"/hello",
-      "protocol":"HTTP/1.1",
-      "requestId":"a3590457-cac2-4f10-8fc9-e47114bf7c62",
-      "requestTime":"02/Feb/2023:11:45:26 +0000",
-      "requestTimeEpoch":1675338326,
-      "resourceId":"123456",
-      "resourcePath":"/hello",
-      "stage":"Prod"
-   },
-   "resource":"/hello",
-   "stageVariables":"",
-   "version":"1.0"
-}
+   assert response["statusCode"] == 400
+   assert "body" in response
+   assert "error" in response["body"]
 
 
-def test_lambda_handler(apigw_event):
+def test_handler_con_paramtros_success(valid_gw_event, lambda_context):
+   response = app.lambda_handler(valid_gw_event, context=lambda_context)
 
-    ret = app.lambda_handler(apigw_event, lambda_context())
-    data = json.loads(ret["body"])
+   assert response["statusCode"] == 200
+   assert "body" in response
+   assert "error" not in response["body"]
+   assert response["body"][0] > 0
+   assert len(response["body"][1]) > 0
 
-    assert ret["statusCode"] == 200
-    assert "message" in ret["body"]
-    assert data["message"] == "hello world"
+
+@mock_dynamodb
+def test_handler_con_resultados_vacios(valid_gw_event_with_old_dates, lambda_context):
+   dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+   table_name = 'WildfiresTable'
+   wildfires_table = dynamodb.Table(table_name)
+
+   response = app.lambda_handler(valid_gw_event_with_old_dates, context=lambda_context)
+
+   assert wildfires_table.item_count > 0
+
+   assert response["statusCode"] == 200
+   assert "body" in response
+   assert "error" not in response["body"]
+   assert response["body"][0] == 0
+   assert len(response["body"][1]) == 0
+
+
+@mock_dynamodb
+def test_handler_con_resultados_no_vacios(valid_gw_event_with_good_dates, lambda_context):
+
+   response = app.lambda_handler(valid_gw_event_with_good_dates, context=lambda_context)
+
+   dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+   table_name = 'WildfiresTable'
+   wildfires_table = dynamodb.Table(table_name)
+   fuegos = wildfires_table.scan()["Items"]
+   d = 10
+   t = 100
+   incendios = segmentacion_de_incendios(fuegos, d, t)
+
+   assert response["statusCode"] == 200
+   assert "body" in response
+   assert "error" not in response["body"]
+   assert response["body"][0] == incendios[0]
